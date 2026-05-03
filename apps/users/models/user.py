@@ -33,7 +33,10 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=11, unique=True)
+    full_name = models.CharField(max_length=150, blank=True, null=True)
 
+    role = models.CharField(max_length=50)
+    
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
