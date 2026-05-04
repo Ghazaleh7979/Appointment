@@ -12,13 +12,15 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = create_user_service(
-            phone_number=serializer.validated_data["phone_number"],
-            full_name=serializer.validated_data["full_name"],
-            password=serializer.validated_data["password"],
-        )
+        user = create_user_service(**serializer.validated_data)
 
         return Response(
-            {"id": user.id},
-            status=status.HTTP_201_CREATED
-        )
+    {
+        "id": user.id,
+        "phone_number": user.phone_number,
+        "full_name": user.full_name,
+    },
+    status=status.HTTP_201_CREATED
+)
+
+
