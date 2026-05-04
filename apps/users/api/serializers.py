@@ -11,3 +11,13 @@ class RegisterSerializer(serializers.Serializer):
         if User.objects.filter(phone_number=value).exists():
             raise serializers.ValidationError("Phone number already exists")
         return value
+    
+    
+class LoginSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    
+    
+class RefreshTokenSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
