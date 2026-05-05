@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
+    "corsheaders",
 ]
 LOCAL_APPS = [
 
@@ -55,6 +56,7 @@ INSTALLED_APPS += LOCAL_APPS
 AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -145,6 +147,19 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "20/hour",
+        "user": "100/hour",
+        "login": "5/min",
+        "password_reset": "3/min",
+    },
 }
 PASSWORD_RESET_TOKEN_MAX_AGE = 900 
 
@@ -169,3 +184,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "accept",
+    "origin",
+    "user-agent",
+    "dnt",
+    "cache-control",
+    "x-requested-with",
+]
