@@ -17,7 +17,7 @@ class CreateUserServiceTests(TestCase):
         self.assertEqual(user_from_db.phone_number, "09120000000")
         self.assertEqual(user_from_db.full_name, "حسین")
         self.assertTrue(user_from_db.is_active)
-        self.assertEqual(user.role, "user")
+        self.assertEqual(user.role, User.Role.CUSTOMER)
 
         self.assertNotEqual(user_from_db.password, "test-password-123")
         self.assertTrue(user_from_db.check_password("test-password-123"))

@@ -9,6 +9,7 @@ class UserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, **extra_fields):
         if not phone_number:
             raise ValueError("Users must have a phone number")
+        extra_fields.setdefault("role", User.Role.CUSTOMER)
 
         user = self.model(phone_number=phone_number, **extra_fields)
         user.set_password(password)
@@ -20,6 +21,8 @@ class UserManager(BaseUserManager):
     def create_superuser(self, phone_number, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("role", User.Role.STAFF)
+
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True")
@@ -32,11 +35,22 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    
+    class Role(models.TextChoices):
+        ADMIN = "ADMIN", "Admin"
+        STAFF = "STAFF", "Staff"
+        CUSTOMER = "CUSTOMER", "Customer"
+        
     phone_number = models.CharField(max_length=11, unique=True)
     full_name = models.CharField(max_length=150, blank=True, null=True)
 
-    role = models.CharField(max_length=20, default="user")
-    
+    role = models.CharField(
+        max_length=16,
+        choices=Role.choices,
+        default=Role.CUSTOMER,
+        db_index=True,
+    )
+        
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

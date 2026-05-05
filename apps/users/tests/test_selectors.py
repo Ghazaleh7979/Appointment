@@ -8,13 +8,13 @@ class SelectorTests(TestCase):
         self.active_user = User.objects.create(
             phone_number='09120000000',
             full_name='حسین',
-            role='user',
+            role=User.Role.CUSTOMER,
             is_active=True
         )
         self.inactive_user = User.objects.create(
             phone_number='09121111111',
             full_name='مینا',
-            role='admin',
+            role=User.Role.STAFF,
             is_active=False
         )
 

@@ -27,7 +27,7 @@ def test_register_api_ignores_role_from_client():
         "phone_number": "09120000002",
         "password": "strongpass123",
         "full_name": "Test User",
-        "role": "superuser"
+        "role": User.Role.ADMIN
     }
 
     response = client.post("/api/users/register/", payload, format="json")
@@ -35,5 +35,5 @@ def test_register_api_ignores_role_from_client():
     user = User.objects.get(phone_number="09120000002")
 
     assert response.status_code == 201
-    assert user.role == "user"
+    assert user.role == User.Role.CUSTOMER
 
