@@ -1,13 +1,12 @@
 from django.urls import path
-from .views import RegisterView, VerifyPhoneView
-from .views import LoginView
-from .views import RefreshTokenView
+from .views import LoginView, PasswordResetConfirmView, PasswordResetRequestView, RefreshTokenView, RegisterView, VerifyPhoneView
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("refresh/", RefreshTokenView.as_view(), name="token_refresh"),
     path("auth/verify-phone/", VerifyPhoneView.as_view()),
-
+    path("password-reset/request/", PasswordResetRequestView.as_view(), name="password-reset-request"),
+    path("password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
 ]
 

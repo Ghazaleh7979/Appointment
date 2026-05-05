@@ -13,6 +13,8 @@ def test_login_api_returns_tokens():
         phone_number="09120000000",
         password="strongpass123",
         role="user",
+        is_active=True,        # ✅ اضافه کن
+        phone_verified=True,   # ✅ اضافه کن
     )
 
     response = client.post(
@@ -27,6 +29,7 @@ def test_login_api_returns_tokens():
     assert response.status_code == 200
     assert "access" in response.data
     assert "refresh" in response.data
+
 
 
 @pytest.mark.django_db

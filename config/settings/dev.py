@@ -146,6 +146,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+PASSWORD_RESET_TOKEN_MAX_AGE = 900 
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

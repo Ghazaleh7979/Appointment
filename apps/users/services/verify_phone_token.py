@@ -13,13 +13,13 @@ def verify_phone_token(token: str) -> User:
             max_age=PHONE_VERIFY_TOKEN_MAX_AGE
         )
     except SignatureExpired:
-        raise ValidationError("Token expired")
+        raise ValidationError("Invalid or expired token")
     except BadSignature:
-        raise ValidationError("Invalid token")
+        raise ValidationError("Invalid or expired token")
 
     user = User.objects.filter(phone_number=phone_number).first()
     if not user:
-        raise ValidationError("User not found")
+        raise ValidationError("Invalid credentials")
 
     user.phone_verified = True
     user.save(update_fields=["phone_verified"])

@@ -94,3 +94,53 @@ class VerifyPhoneView(APIView):
             {"detail": "Phone number verified successfully"},
             status=status.HTTP_200_OK
         )
+        
+from apps.users.api.serializers import (
+    PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer,
+)
+from apps.users.services.password_reset import (
+    confirm_password_reset_service,
+    request_password_reset_service,
+)
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        request_password_reset_service(
+            phone_number=serializer.validated_data["phone_number"]
+        )
+
+        return Response(
+            {"detail": "If this account exists, a reset token has been generated."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            confirm_password_reset_service(
+                token=serializer.validated_data["token"],
+                new_password=serializer.validated_data["new_password"],
+            )
+        except DjangoValidationError as e:
+            return Response(
+                {"detail": e.messages[0] if e.messages else "Invalid request"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {"detail": "Password has been reset successfully."},
+            status=status.HTTP_200_OK,
+        )
+

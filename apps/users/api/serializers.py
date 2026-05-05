@@ -23,3 +23,11 @@ class RefreshTokenSerializer(serializers.Serializer):
 
 class VerifyPhoneTokenSerializer(serializers.Serializer):
     token = serializers.CharField()
+    
+class PasswordResetRequestSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(max_length=20)
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True, min_length=8)

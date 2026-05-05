@@ -104,6 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+PASSWORD_RESET_TOKEN_MAX_AGE = 900 
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
