@@ -21,3 +21,5 @@ class LoginSerializer(serializers.Serializer):
 class RefreshTokenSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
+class VerifyPhoneTokenSerializer(serializers.Serializer):
+    token = serializers.CharField()

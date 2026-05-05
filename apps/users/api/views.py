@@ -71,3 +71,26 @@ class RefreshTokenView(APIView):
             )
 
         return Response(token, status=status.HTTP_200_OK)
+
+
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
+from apps.users.api.serializers import VerifyPhoneTokenSerializer
+from apps.users.services.verify_phone_token import verify_phone_token
+
+class VerifyPhoneView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VerifyPhoneTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        verify_phone_token(serializer.validated_data["token"])
+
+        return Response(
+            {"detail": "Phone number verified successfully"},
+            status=status.HTTP_200_OK
+        )
