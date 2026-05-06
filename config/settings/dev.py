@@ -87,6 +87,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+USE_SECURE_COOKIES = False
 
 
 # Database

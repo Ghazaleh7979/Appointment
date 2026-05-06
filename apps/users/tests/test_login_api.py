@@ -6,15 +6,15 @@ User = get_user_model()
 
 
 @pytest.mark.django_db
-def test_login_api_returns_tokens():
+def test_login_api_returns_access_and_sets_refresh_cookie():
     client = APIClient()
 
-    user = User.objects.create_user(
+    User.objects.create_user(
         phone_number="09120000000",
         password="strongpass123",
         role="user",
-        is_active=True,        # ✅ اضافه کن
-        phone_verified=True,   # ✅ اضافه کن
+        is_active=True,
+        phone_verified=True,
     )
 
     response = client.post(
@@ -28,7 +28,10 @@ def test_login_api_returns_tokens():
 
     assert response.status_code == 200
     assert "access" in response.data
-    assert "refresh" in response.data
+    assert "refresh" not in response.data
+
+    assert "refresh_token" in response.cookies
+    assert response.cookies["refresh_token"].value != ""
 
 
 

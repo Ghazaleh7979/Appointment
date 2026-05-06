@@ -1,12 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+
 
 from apps.users.api.serializers import RegisterSerializer
 from apps.users.services.create_user_service import create_user_service
 
 
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -27,10 +30,11 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 from .serializers import LoginSerializer
 from apps.users.services.login_user_service import login_user_service
+from django.conf import settings
 
 
 class LoginView(APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -46,15 +50,29 @@ class LoginView(APIView):
                 {"detail": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+            
+        refresh = tokens.get("refresh")
+        tokens.pop("refresh", None)
 
-        return Response(tokens, status=status.HTTP_200_OK)
+        response = Response(tokens, status=status.HTTP_200_OK)
+        
+        response.set_cookie(
+            key="refresh_token",
+            value=str(refresh),
+            httponly=True,
+            secure=getattr(settings, "USE_SECURE_COOKIES", False),
+            samesite="Strict",
+            path="/",
+        )
+
+        return response
 
 from .serializers import RefreshTokenSerializer
 from apps.users.services.refresh_access_token_service import refresh_access_token_service
 
 
 class RefreshTokenView(APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RefreshTokenSerializer(data=request.data)
@@ -74,7 +92,6 @@ class RefreshTokenView(APIView):
 
 
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 

@@ -43,6 +43,7 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Prevent content being loaded in iframes (Clickjacking protection)
 X_FRAME_OPTIONS = "DENY"
+USE_SECURE_COOKIES = True
 
 # Prevent Mime Sniffing Attacks
 SECURE_CONTENT_TYPE_NOSNIFF = True
