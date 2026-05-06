@@ -23,11 +23,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-nz53q+)q*@p!-4#i#*myjc+9#8ve=cugi!=ffyzzl^vv00hv2('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
+# HTTPS redirect (force HTTPS)
+SECURE_SSL_REDIRECT = True
 
+# HSTS (HTTP Strict Transport Security)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_PRELOAD = True      # For browser preload lists
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# Secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# Prevent content being loaded in iframes (Clickjacking protection)
+X_FRAME_OPTIONS = "DENY"
+
+# Prevent Mime Sniffing Attacks
+SECURE_CONTENT_TYPE_NOSNIFF = True
 # Application definition
 
 INSTALLED_APPS = [
