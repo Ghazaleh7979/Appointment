@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 
 
 from apps.users.api.serializers import RegisterSerializer
+from apps.users.services.logout_service import logout_service
 from apps.users.services.create_user_service import create_user_service
 
 
@@ -28,7 +29,7 @@ class RegisterView(APIView):
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 
-from .serializers import LoginSerializer
+from .serializers import LoginSerializer, LogoutSerializer
 from apps.users.services.login_user_service import login_user_service
 from django.conf import settings
 
@@ -161,3 +162,23 @@ class PasswordResetConfirmView(APIView):
             status=status.HTTP_200_OK,
         )
 
+from rest_framework.permissions import IsAuthenticated
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        refresh_token = serializer.validated_data["refresh"]
+
+        try:
+            logout_service(refresh_token=refresh_token)
+        except Exception:
+            return Response(
+                {"detail": "Invalid refresh token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
