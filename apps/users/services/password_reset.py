@@ -9,7 +9,7 @@ RESET_PASSWORD_SALT = "users.password.reset"
 signer = TimestampSigner(salt=RESET_PASSWORD_SALT)
 
 
-def request_password_reset_service(*, phone_number: str) -> None:
+def request_password_reset_service(*, phone_number: str) -> User:
 
     user = User.objects.filter(phone_number=phone_number).first()
 
@@ -18,13 +18,14 @@ def request_password_reset_service(*, phone_number: str) -> None:
 
     token = signer.sign(str(user.id))
     print(f"[DEBUG] Password reset token for user {user.phone_number}: {token}")
+    return user
 
 
 def generate_password_reset_token(*, user: User) -> str:
     return signer.sign(str(user.id))
 
 
-def confirm_password_reset_service(*, token: str, new_password: str) -> None:
+def confirm_password_reset_service(*, token: str, new_password: str) -> User:
     try:
         user_id = signer.unsign(
             token,
@@ -39,3 +40,5 @@ def confirm_password_reset_service(*, token: str, new_password: str) -> None:
 
     user.set_password(new_password)
     user.save(update_fields=["password"])
+    return user
+

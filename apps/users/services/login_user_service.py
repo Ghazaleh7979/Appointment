@@ -27,7 +27,9 @@ def login_user_service(*, phone_number: str, password: str) -> dict:
         raise ValidationError("Invalid credentials") 
 
     refresh = RefreshToken.for_user(user)
-    return {
+    tokens = {
         "access": str(refresh.access_token),
         "refresh": str(refresh),
     }
+    return user, tokens
+
