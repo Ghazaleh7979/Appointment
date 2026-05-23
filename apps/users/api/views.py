@@ -1,34 +1,47 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
-from apps.users.api.serializers import RegisterSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.conf import settings
+from django.core.exceptions import ValidationError as DjangoValidationError
+from drf_spectacular.utils import extend_schema
+
+from apps.users.api.serializers import (
+    RefreshTokenSerializer,
+    RegisterSerializer,
+    LoginSerializer,
+    LogoutSerializer,
+    VerifyPhoneTokenSerializer,
+    PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer,
+)
 from apps.users.services.logout_service import logout_service
 from apps.users.services.create_user_service import create_user_service
 from apps.users.services.security.audit_log_service import create_audit_log
 from apps.users.models import AuditLog
 from apps.core.utils.request_info import get_client_ip, get_user_agent
-from rest_framework.permissions import IsAuthenticated
-from .serializers import LoginSerializer, LogoutSerializer
 from apps.users.services.login_user_service import login_user_service
-from django.conf import settings
-from .serializers import RefreshTokenSerializer
 from apps.users.services.refresh_access_token_service import refresh_access_token_service
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.core.exceptions import ValidationError as DjangoValidationError
-from apps.users.api.serializers import VerifyPhoneTokenSerializer
 from apps.users.services.verify_phone_token import verify_phone_token
-from apps.users.api.serializers import (
-    PasswordResetConfirmSerializer,
-    PasswordResetRequestSerializer,)
 from apps.users.services.password_reset import (
     confirm_password_reset_service,
-    request_password_reset_service,)
+    request_password_reset_service)
 
+# ---------------- Register ----------------
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="Register new user",
+        description="Register a new user with phone number and full name.",
+        request=RegisterSerializer,
+        responses={
+            201: RegisterSerializer,
+            400: {"type": "object", "properties": {"detail": {"type": "string"}}},
+        },
+        tags=["Authentication"],
+        auth=None,
+    )
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -45,8 +58,26 @@ class RegisterView(APIView):
     status=status.HTTP_201_CREATED
 )
 
+# ---------------- Login ----------------
 class LoginView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="User Login",
+        description="Authenticate user and return access/refresh token pair.",
+        request=LoginSerializer,
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "access": {"type": "string"},
+                },
+            },
+            400: {"type": "object", "properties": {"detail": {"type": "string"}}},
+        },
+        tags=["Authentication"],
+        auth=None,
+    )
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -91,8 +122,26 @@ class LoginView(APIView):
 
         return response
 
+# ---------------- Refresh Token ----------------
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="Refresh Access Token",
+        description="Generate new access token using refresh token.",
+        request=RefreshTokenSerializer,
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "access": {"type": "string"},
+                },
+            },
+            400: {"type": "object", "properties": {"detail": {"type": "string"}}},
+        },
+        tags=["Authentication"],
+        auth=None,
+    )
 
     def post(self, request):
         serializer = RefreshTokenSerializer(data=request.data)
@@ -110,8 +159,18 @@ class RefreshTokenView(APIView):
 
         return Response(token, status=status.HTTP_200_OK)
 
+# ---------------- Verify Phone ----------------
 class VerifyPhoneView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="Verify phone number",
+        description="Verify user phone number using token sent via SMS.",
+        request=VerifyPhoneTokenSerializer,
+        responses={200: {"type": "object", "properties": {"detail": {"type": "string"}}}},
+        tags=["Authentication"],
+        auth=None,
+    )
 
     def post(self, request):
         serializer = VerifyPhoneTokenSerializer(data=request.data)
@@ -124,8 +183,18 @@ class VerifyPhoneView(APIView):
             status=status.HTTP_200_OK
         )
 
+# ---------------- Request Password Reset ----------------
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="Password Reset Request",
+        description="Request a password reset using phone number.",
+        request=PasswordResetRequestSerializer,
+        responses={200: {"type": "object", "properties": {"detail": {"type": "string"}}}},
+        tags=["Authentication"],
+        auth=None,
+    )
 
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
@@ -146,8 +215,18 @@ class PasswordResetRequestView(APIView):
             status=status.HTTP_200_OK,
         )
 
+# ---------------- Confirm Password Reset ----------------
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary="Confirm Password Reset",
+        description="Reset user password using reset token.",
+        request=PasswordResetConfirmSerializer,
+        responses={200: {"type": "object", "properties": {"detail": {"type": "string"}}}},
+        tags=["Authentication"],
+        auth=None,
+    )
 
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
@@ -182,8 +261,17 @@ class PasswordResetConfirmView(APIView):
             status=status.HTTP_200_OK,
         )
 
+# ---------------- Logout ----------------
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="User Logout",
+        description="Invalidate given refresh token and log user out.",
+        request=LogoutSerializer,
+        responses={204: None, 400: {"type": "object", "properties": {"detail": {"type": "string"}}}},
+        tags=["Authentication"],
+    )
 
     def post(self, request):
         serializer = LogoutSerializer(data=request.data)
